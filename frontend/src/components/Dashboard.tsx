@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Coins, Receipt, Calendar, TrendingUp, Loader2, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
@@ -25,7 +25,7 @@ export default function Dashboard() {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -39,17 +39,17 @@ export default function Dashboard() {
         receipts: receiptsResponse.data.receipts,
         total_points: pointsResponse.data.total_points
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Dashboard fetch error:', err);
       setError('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE_URL]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

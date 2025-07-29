@@ -82,12 +82,17 @@ export default function ReceiptUpload() {
 
       setResult(response.data);
       setSelectedFile(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
       
-      if (error.response?.data?.error) {
-        setResult({ success: false, error: error.response.data.error });
-      } else if (error.code === 'ECONNABORTED') {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { error?: string } } };
+        if (axiosError.response?.data?.error) {
+          setResult({ success: false, error: axiosError.response.data.error });
+        } else {
+          setResult({ success: false, error: 'Failed to process receipt. Please try again.' });
+        }
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'ECONNABORTED') {
         setResult({ success: false, error: 'Upload timeout. Please try again.' });
       } else {
         setResult({ success: false, error: 'Failed to process receipt. Please try again.' });
