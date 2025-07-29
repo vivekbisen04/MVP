@@ -26,17 +26,20 @@ Web Frontend (Next.js) → Node.js API → Python OCR Service → SQLite Databas
 
 ## 🚀 Quick Start
 
-### Prerequisites
+Choose your preferred setup method:
+
+### Option 1: Docker Setup (Recommended)
+
+#### Prerequisites
 - Docker and Docker Compose installed
 - At least 4GB available RAM (for OCR model loading)
 - Ports 3000, 3001, and 8001 available
 
-### Installation
-
-1. **Clone and navigate to the project:**
+#### Installation
+1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
-   cd receipt-rewards-demo
+   git clone https://github.com/vivekbisen04/MVP.git
+   cd MVP
    ```
 
 2. **Start all services:**
@@ -50,6 +53,51 @@ Web Frontend (Next.js) → Node.js API → Python OCR Service → SQLite Databas
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:3001
    - OCR Service: http://localhost:8001
+
+### Option 2: Manual Setup (Without Docker)
+
+#### Prerequisites
+- Node.js 18+ and npm
+- Python 3.8+ and pip
+- At least 4GB available RAM
+
+#### Backend Setup
+```bash
+cd backend
+npm install
+npm start
+# Runs on http://localhost:3001
+```
+
+#### Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+# Runs on http://localhost:3000
+```
+
+#### OCR Service Setup
+```bash
+cd ocr-service
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8001
+# Runs on http://localhost:8001
+```
+
+#### Environment Variables
+Create these files for manual setup:
+
+**backend/.env**
+```
+PORT=3001
+OCR_SERVICE_URL=http://localhost:8001
+```
+
+**frontend/.env.local**
+```
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
 
 ### First Time Setup
 The OCR service will download the EasyOCR model on first startup (~150MB). This may take a few minutes depending on your internet connection.
@@ -115,23 +163,6 @@ receipt_id INTEGER REFERENCES receipts(id)
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ```
 
-## 🧪 Testing
-
-### Sample Receipts
-Check the `sample-receipts/` directory for test data and patterns to create receipt images.
-
-### Test Scenarios
-1. **Valid Receipt**: Upload clear receipt image → Verify merchant and total extraction
-2. **Duplicate Prevention**: Upload same receipt twice → Should reject duplicate
-3. **Invalid Image**: Upload non-receipt image → Should handle gracefully
-4. **Points Calculation**: Verify 25 points awarded per receipt
-
-### Manual Testing
-1. Create receipt images based on sample patterns
-2. Test various receipt formats (grocery, restaurant, retail)
-3. Verify OCR accuracy with different image qualities
-4. Test dashboard refresh and data persistence
-
 ## 🛠️ Development Setup
 
 ### Running Services Individually
@@ -169,115 +200,3 @@ OCR_SERVICE_URL=http://localhost:8001
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
-
-## 🔍 Technical Decisions
-
-### OCR Implementation
-- **EasyOCR**: Chosen for good accuracy without requiring Google Vision API keys
-- **Text Processing**: Custom regex patterns for merchant and total extraction
-- **Image Preprocessing**: OpenCV for image enhancement before OCR
-
-### Database Choice
-- **SQLite**: Simple setup, suitable for MVP demo
-- **Schema Design**: Separate tables for receipts and points ledger for auditability
-
-### Frontend Architecture
-- **Next.js**: Modern React framework with TypeScript
-- **Tailwind CSS**: Rapid UI development with consistent design
-- **Component Structure**: Modular components for upload and dashboard
-
-### Error Handling
-- **OCR Failures**: Graceful fallback with user feedback
-- **Duplicate Detection**: Basic merchant + amount matching within 1 hour
-- **File Validation**: Image type and size restrictions
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**OCR Service Won't Start**
-- Check available RAM (needs ~2GB for model)
-- Verify Docker has sufficient memory allocation
-- Check logs: `docker-compose logs ocr-service`
-
-**Upload Fails**
-- Verify all services are running
-- Check image file size (max 10MB)
-- Ensure image is valid format (JPG, PNG, HEIC)
-
-**Dashboard Shows No Data**
-- Check backend service connection
-- Verify database file permissions
-- Refresh the page
-
-**Performance Issues**
-- OCR processing takes 5-15 seconds per image (normal)
-- First OCR request is slower due to model loading
-- Consider image size reduction for faster processing
-
-### Docker Issues
-```bash
-# Restart all services
-docker-compose down && docker-compose up --build
-
-# View logs
-docker-compose logs [service-name]
-
-# Access service shell
-docker-compose exec [service-name] /bin/bash
-```
-
-## 📊 Performance Metrics
-
-### Expected Performance
-- **OCR Processing**: 3-10 seconds per receipt
-- **API Response**: <1 second for data retrieval
-- **Database Operations**: <100ms for standard queries
-- **Memory Usage**: ~2GB for OCR service, ~500MB total for other services
-
-## 🔒 Security Considerations
-
-- File upload validation and size limits
-- No sensitive data logging
-- Input sanitization for OCR text
-- Basic duplicate prevention
-
-## 🚧 Future Enhancements
-
-### Phase 2 Features
-- User authentication and accounts
-- Receipt image storage and retrieval
-- Advanced duplicate detection
-- Receipt categorization and analytics
-- Rewards catalog and redemption
-- Mobile app integration
-
-### Technical Improvements
-- Redis caching for faster responses
-- PostgreSQL for production database
-- Image compression and optimization
-- Advanced OCR preprocessing
-- API rate limiting and authentication
-- Comprehensive test suite
-
-## 📈 Scalability Considerations
-
-- **OCR Service**: Can be horizontally scaled with load balancer
-- **Database**: SQLite suitable for demo; PostgreSQL recommended for production
-- **File Storage**: Consider cloud storage (S3) for receipt images
-- **Caching**: Redis for frequently accessed data
-- **Monitoring**: Add logging and metrics collection
-
-## 🤝 Contributing
-
-This is a demonstration project for a job application. The code is provided as-is for evaluation purposes.
-
-## 📞 Support
-
-For questions about this implementation, please refer to the code comments and this documentation. The project demonstrates full-stack development capabilities with modern technologies and best practices.
-
----
-
-**Built with ❤️ as a technical demonstration**
-
-*This MVP showcases proficiency in full-stack development, OCR integration, API design, modern frontend frameworks, and Docker containerization.*
