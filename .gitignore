@@ -1,0 +1,46 @@
+# Root level exclusions
+*.log
+.DS_Store
+Thumbs.db
+
+# Docker & Containers
+*.tar
+docker-compose.override.yml
+.docker/
+containers/
+volumes/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+receipts.db
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+
+# Dependencies (covered by subdirectory .gitignore files)
+node_modules/
+venv/
+
+# ML Models
+*.pth
+*.pkl
+*.model
+.EasyOCR/

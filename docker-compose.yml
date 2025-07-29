@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # OCR Service (Python FastAPI)
+  ocr-service:
+    build: ./ocr-service
+    container_name: receipt-ocr-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API (Node.js Express)
+  backend:
+    build: ./backend
+    container_name: receipt-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - OCR_SERVICE_URL=http://ocr-service:8001
+    volumes:
+      - ./backend/receipts.db:/app/receipts.db  # Persist database
+    depends_on:
+      - ocr-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend (Next.js)
+  frontend:
+    build: ./frontend
+    container_name: receipt-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  database:
+    driver: local
